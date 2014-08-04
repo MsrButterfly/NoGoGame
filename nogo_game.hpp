@@ -17,6 +17,8 @@ public:
     nogo_game() {
         reset();
     }
+    nogo_game(const nogo_game &game)
+    : winner_(game.winner_), chessboard_(game.chessboard_), available_(game.available_), remain_(game.remain_), player_(game.player_) {}
 public:
     void start(const bool &show_progress = false, nogo_chess current = nogo_chess::black) {
         if (!player_[nogo_chess::black] || !player_[nogo_chess::white]) {
@@ -58,6 +60,11 @@ public:
     template <class Player>
     void set_player(const nogo_chess &chess) {
         player_[chess] = std::make_shared<Player>(*this);
+    }
+    template <class Player>
+    std::shared_ptr<Player> get_player(const nogo_chess &chess) {
+        auto player = std::dynamic_pointer_cast<Player>(player_[chess]);
+        return player;
     }
     void set(const point &p, const nogo_chess &chess, const bool &show = false) {
         if (p.x >= nogo_chessboard::colomns || p.y >= nogo_chessboard::rows) {
