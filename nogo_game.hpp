@@ -60,6 +60,9 @@ public:
         player_[chess] = std::make_shared<Player>(*this);
     }
     void set(const point &p, const nogo_chess &chess, const bool &show = false) {
+        if (p.x >= nogo_chessboard::colomns || p.y >= nogo_chessboard::rows) {
+            throw std::string("Specific point does not exist.");
+        }
         auto &available = available_[chess];
         if (available[p.x][p.y]) {
             chessboard_[p.x][p.y] = chess;
@@ -86,6 +89,9 @@ public:
         update(nogo_chess::white);
     }
     const nogo_chess &get(const point &p) const {
+        if (p.x >= nogo_chessboard::colomns || p.y >= nogo_chessboard::rows) {
+            throw std::string("Specific point does not exist.");
+        }
         return chessboard_[p.x][p.y];
     }
     const size_t &remain(const nogo_chess &chess) const {
