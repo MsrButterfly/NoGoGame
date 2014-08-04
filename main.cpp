@@ -30,10 +30,10 @@ public:
         std::vector<float> weight(available_sequence.size(), 1);
         for (size_t i = 0; i < weight.size(); ++i) {
             auto &p = available_sequence[i];
-            try { weight[i] *= game_.get(p.top_left()) == self ? eye_construction_factor : 1; } catch (...) { weight[i] *= eye_construction_factor; }
-            try { weight[i] *= game_.get(p.top_right()) == self ? eye_construction_factor : 1; } catch (...) { weight[i] *= eye_construction_factor; }
-            try { weight[i] *= game_.get(p.bottom_left()) == self ? eye_construction_factor : 1; } catch (...) { weight[i] *= eye_construction_factor; }
-            try { weight[i] *= game_.get(p.bottom_right()) == self ? eye_construction_factor : 1; } catch (...) { weight[i] *= eye_construction_factor; }
+            try { weight[i] *= game_.get(p.top().left()) == self ? eye_construction_factor : 1; } catch (...) { weight[i] *= eye_construction_factor; }
+            try { weight[i] *= game_.get(p.top().right()) == self ? eye_construction_factor : 1; } catch (...) { weight[i] *= eye_construction_factor; }
+            try { weight[i] *= game_.get(p.bottom().left()) == self ? eye_construction_factor : 1; } catch (...) { weight[i] *= eye_construction_factor; }
+            try { weight[i] *= game_.get(p.bottom().right()) == self ? eye_construction_factor : 1; } catch (...) { weight[i] *= eye_construction_factor; }
             try { weight[i] *= game_.get(p.top().top()) == self ? eye_construction_factor : 1; } catch (...) { weight[i] *= eye_construction_factor; }
             try { weight[i] *= game_.get(p.bottom().bottom()) == self ? eye_construction_factor : 1; } catch (...) { weight[i] *= eye_construction_factor; }
             try { weight[i] *= game_.get(p.left().left()) == self ? eye_construction_factor : 1; } catch (...) { weight[i] *= eye_construction_factor; }
@@ -65,17 +65,40 @@ public:
     float eye_destruction_factor = 1.5;
 };
 
+class human_player: public nogo_player {
+public:
+    human_player(nogo_game &game): nogo_player(game) {}
+public:
+    virtual void play(const nogo_chess &chess) override {
+        std::string input;
+        while (true) {
+            std::cout << chess << ": ";
+            std::getline(std::cin, input);
+            if (input.length() == 2) {
+                size_t x = input[0] - 'A';
+                size_t y = input[1] - '1';
+                try {
+                    game_.set({x, y}, chess);
+                    break;
+                } catch (const std::string &hint) {
+                    std::cout << hint << std::endl;
+                }
+            }
+        }
+    }
+};
+
 int main(int argc, const char *argv[]) {
     nogo_game game;
-    const size_t times = 1000;
+    const size_t times = 1;
     std::map<nogo_chess, size_t> wins;
     wins[nogo_chess::black] = 0;
     wins[nogo_chess::white] = 0;
     for (size_t i = 0; i < times; ++i) {
         game.reset();
         game.set_player<eye_strategy_player>(nogo_chess::black);
-        game.set_player<random_strategy_player>(nogo_chess::white);
-        game.start();
+        game.set_player<human_player>(nogo_chess::white);
+        game.start(true);
         ++wins[game.winner()];
     }
     for (auto &w: wins) {

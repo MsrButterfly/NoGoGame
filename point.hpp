@@ -19,18 +19,6 @@ struct point {
     self_type bottom() {
         return {x, y + 1};
     }
-    self_type top_left() {
-        return {x - 1, y - 1};
-    }
-    self_type top_right() {
-        return {x + 1, y - 1};
-    }
-    self_type bottom_left() {
-        return {x - 1, y + 1};
-    }
-    self_type bottom_right() {
-        return {x + 1, y + 1};
-    }
 };
 
 #endif
