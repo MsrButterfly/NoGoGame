@@ -4,6 +4,7 @@
 #include <array>
 #include <map>
 #include <memory>
+#include <stack>
 #include <string>
 #include <vector>
 #include "nogo_chessboard.hpp"
@@ -14,11 +15,9 @@ class nogo_game {
 public:
     using available_matrix_type = std::array<std::array<bool, nogo_chessboard::rows>, nogo_chessboard::colomns>;
 public:
-    nogo_game() {
-        reset();
-    }
+    nogo_game() { reset(); }
     nogo_game(const nogo_game &game)
-    : winner_(game.winner_), chessboard_(game.chessboard_), available_(game.available_), remain_(game.remain_), player_(game.player_) {}
+    : winner_(game.winner_), chessboard_(game.chessboard_), available_(game.available_), remaining_(game.remaining_), player_(game.player_), step_(game.step_) {}
 public:
     void start(const bool &show_progress = false, nogo_chess current = nogo_chess::black) {
         if (!player_[nogo_chess::black] || !player_[nogo_chess::white]) {
@@ -30,7 +29,7 @@ public:
                 std::cout << chessboard_ << std::endl;
             }
             auto next = (current == nogo_chess::black) ? nogo_chess::white : nogo_chess::black;
-            if (remain_[next] == 0) {
+            if (remaining_[next] == 0) {
                 winner_ = current;
                 break;
             }
@@ -47,12 +46,13 @@ public:
         };
         clear(available_[nogo_chess::black]);
         clear(available_[nogo_chess::white]);
-        remain_[nogo_chess::black] = nogo_chessboard::size;
-        remain_[nogo_chess::white] = nogo_chessboard::size;
+        remaining_[nogo_chess::black] = nogo_chessboard::size;
+        remaining_[nogo_chess::white] = nogo_chessboard::size;
         player_[nogo_chess::black] = nullptr;
         player_[nogo_chess::white] = nullptr;
         chessboard_ = nogo_chessboard();
         winner_ = nogo_chess::none;
+        step_ = std::stack<point>();
     }
     const nogo_chess &winner() const {
         return winner_;
@@ -73,25 +73,13 @@ public:
         auto &available = available_[chess];
         if (available[p.x][p.y]) {
             chessboard_[p.x][p.y] = chess;
+            step_.push(p);
             if (show) {
                 std::cout << chess << ' ' << static_cast<char>(p.x + 'A') << static_cast<char>(p.y + '1') << std::endl;
             }
         } else {
             throw std::string("Point not available.");
         }
-        auto update = [&](const nogo_chess &c) {
-            auto &available = available_[c];
-            for (size_t i = 0; i < nogo_chessboard::colomns; ++i) {
-                for (size_t j = 0; j < nogo_chessboard::rows; ++j) {
-                    if (available[i][j]) {
-                        available[i][j] = chessboard_.available({i, j}, c);
-                        if (!available[i][j]) {
-                            --remain_[c];
-                        }
-                    }
-                }
-            }
-        };
         update(nogo_chess::black);
         update(nogo_chess::white);
     }
@@ -101,8 +89,19 @@ public:
         }
         return chessboard_[p.x][p.y];
     }
-    const size_t &remain(const nogo_chess &chess) const {
-        return remain_.at(chess);
+    void undo() {
+        if (step_.size() == 0) {
+            throw std::string("Already at first step.");
+        }
+        auto p = step_.top();
+        step_.pop();
+        winner_ = nogo_chess::none;
+        chessboard_[p.x][p.y] = nogo_chess::none;
+        update(nogo_chess::black);
+        update(nogo_chess::white);
+    }
+    const size_t &remaining(const nogo_chess &chess) const {
+        return remaining_.at(chess);
     }
     const bool &available(const point &p, const nogo_chess &chess) const {
         return available_.at(chess)[p.x][p.y];
@@ -119,12 +118,30 @@ public:
         }
         return sequence;
     }
+    size_t step_count() const {
+        return step_.size();
+    }
+private:
+    void update(const nogo_chess &chess) {
+        auto &available = available_[chess];
+        for (size_t i = 0; i < nogo_chessboard::colomns; ++i) {
+            for (size_t j = 0; j < nogo_chessboard::rows; ++j) {
+                auto before = available[i][j];
+                available[i][j] = chessboard_.available({i, j}, chess);
+                auto after = available[i][j];
+                if (before != after) {
+                    remaining_[chess] += (before == false) ? 1 : -1;
+                }
+            }
+        }
+    }
 private:
     nogo_chess winner_;
     nogo_chessboard chessboard_;
     std::map<nogo_chess, available_matrix_type> available_;
-    std::map<nogo_chess, size_t> remain_;
+    std::map<nogo_chess, size_t> remaining_;
     std::map<nogo_chess, std::shared_ptr<nogo_player>> player_;
+    std::stack<point> step_;
 };
 
 #endif

@@ -15,6 +15,11 @@ public:
         const auto opponent = (chess == nogo_chess::black) ? nogo_chess::white : nogo_chess::black;
         auto available_sequence = game_.available_sequence(chess);
         std::vector<float> weight(available_sequence.size(), 1);
+        static std::random_device device;
+        std::uniform_int_distribution<double> distribute(0.5, 1.5);
+        for (auto &w: weight) {
+            w *= distribute(device);
+        }
         for (size_t i = 0; i < weight.size(); ++i) {
             auto &p = available_sequence[i];
             try { weight[i] *= game_.get(p.top().left()) == self ? eye_construction_factor : 1; } catch (...) { weight[i] *= eye_construction_factor; }
