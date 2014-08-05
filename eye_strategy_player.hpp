@@ -20,6 +20,8 @@ public:
         for (auto &w: weight) {
             w *= distribute(device);
         }
+        std::mt19937 generator(device());
+        std::shuffle(begin(available_sequence), end(available_sequence), generator);
         for (size_t i = 0; i < weight.size(); ++i) {
             auto &p = available_sequence[i];
             try { weight[i] *= game_.get(p.top().left()) == self ? eye_construction_factor : 1; } catch (...) { weight[i] *= eye_construction_factor; }
@@ -62,7 +64,7 @@ public:
     float parity_factor = 2.5;
     float eye_construction_factor = 1.5;
     float eye_fill_factor = 0.01;
-    float eye_destruction_factor = 1.5;
+    float eye_destruction_factor = 2;
     float adjacency_factor = 0.5;
 };
 
