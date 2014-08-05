@@ -23,8 +23,22 @@ public:
         if (!player_[nogo_chess::black] || !player_[nogo_chess::white]) {
             throw std::string("Players not yet ready.");
         }
+        nogo_chessboard chessboard_before;
         while (true) {
+            if (show_progress) {
+                chessboard_before = chessboard_;
+            }
             player_[current]->play(current);
+            if (show_progress) {
+                for (size_t i = 0; i < nogo_chessboard::colomns; ++i) {
+                    for (size_t j = 0; j < nogo_chessboard::rows; ++j) {
+                        if (chessboard_[i][j] != chessboard_before[i][j]) {
+                            std::cout << current << ' ' << static_cast<char>(i + 'A') << static_cast<char>(j + '1') << std::endl;
+                            break;
+                        }
+                    }
+                }
+            }
             if (show_progress) {
                 std::cout << chessboard_ << std::endl;
             }
@@ -66,7 +80,7 @@ public:
         auto player = std::dynamic_pointer_cast<Player>(player_[chess]);
         return player;
     }
-    void set(const point &p, const nogo_chess &chess, const bool &show = false) {
+    void set(const point &p, const nogo_chess &chess) {
         if (p.x >= nogo_chessboard::colomns || p.y >= nogo_chessboard::rows) {
             throw std::string("Specific point does not exist.");
         }
@@ -74,9 +88,6 @@ public:
         if (available[p.x][p.y]) {
             chessboard_[p.x][p.y] = chess;
             step_.push(p);
-            if (show) {
-                std::cout << chess << ' ' << static_cast<char>(p.x + 'A') << static_cast<char>(p.y + '1') << std::endl;
-            }
         } else {
             throw std::string("Point not available.");
         }
