@@ -89,7 +89,7 @@ public:
         }
         return chessboard_[p.x][p.y];
     }
-    void undo() {
+    void undo(const bool show = false) {
         if (step_.size() == 0) {
             throw std::string("Already at first step.");
         }
@@ -99,6 +99,9 @@ public:
         chessboard_[p.x][p.y] = nogo_chess::none;
         update(nogo_chess::black);
         update(nogo_chess::white);
+        if (show) {
+            std::cout << chessboard_ << std::endl;
+        }
     }
     const size_t &remaining(const nogo_chess &chess) const {
         return remaining_.at(chess);

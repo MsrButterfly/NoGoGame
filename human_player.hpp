@@ -26,6 +26,9 @@ public:
                 } catch (const std::string &hint) {
                     std::cout << hint << std::endl;
                 }
+            } else if (input == "undo") {
+                game_.undo();
+                game_.undo(true);
             }
         }
     }
