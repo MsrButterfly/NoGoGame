@@ -1,6 +1,8 @@
 #ifndef EYE_STRATEGY_PLAYER_HPP
 #define EYE_STRATEGY_PLAYER_HPP
 
+#include <algorithm>
+#include <random>
 #include <vector>
 #include "nogo_chess.hpp"
 #include "nogo_game.hpp"
@@ -61,11 +63,11 @@ public:
         game_.set(p, chess);
     }
 public:
-    float parity_factor = 2.5;
-    float eye_construction_factor = 1.5;
+    float parity_factor = 2;
+    float eye_construction_factor = 2;
     float eye_fill_factor = 0.01;
     float eye_destruction_factor = 2;
-    float adjacency_factor = 0.5;
+    float adjacency_factor = 0.3;
 };
 
 #endif

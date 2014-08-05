@@ -75,7 +75,7 @@ public:
     void set_player(const nogo_chess &chess) {
         player_[chess] = std::make_shared<Player>(*this);
     }
-    template <class Player>
+    template <class Player = nogo_player>
     std::shared_ptr<Player> get_player(const nogo_chess &chess) {
         auto player = std::dynamic_pointer_cast<Player>(player_[chess]);
         return player;
