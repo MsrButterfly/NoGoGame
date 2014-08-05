@@ -30,10 +30,18 @@ public:
             try { weight[i] *= game_.get(p.bottom().bottom()) == self ? eye_construction_factor : 1; } catch (...) { weight[i] *= eye_construction_factor; }
             try { weight[i] *= game_.get(p.left().left()) == self ? eye_construction_factor : 1; } catch (...) { weight[i] *= eye_construction_factor; }
             try { weight[i] *= game_.get(p.right().right()) == self ? eye_construction_factor : 1; } catch (...) { weight[i] *= eye_construction_factor; }
-            try { weight[i] *= game_.get(p.top()) == self ? eye_fill_factor : 1; } catch (...) { weight[i] *= eye_fill_factor; }
-            try { weight[i] *= game_.get(p.bottom()) == self ? eye_fill_factor : 1; } catch (...) { weight[i] *= eye_fill_factor; }
-            try { weight[i] *= game_.get(p.left()) == self ? eye_fill_factor : 1; } catch (...) { weight[i] *= eye_fill_factor; }
-            try { weight[i] *= game_.get(p.right()) == self ? eye_fill_factor : 1; } catch (...) { weight[i] *= eye_fill_factor; }
+            bool top = true, bottom = true, left = true, right = true;
+            try { top = (game_.get(p.top()) == nogo_chess::black); } catch (...) {}
+            try { bottom = (game_.get(p.bottom()) == nogo_chess::black); } catch (...) {}
+            try { left = (game_.get(p.left()) == nogo_chess::black); } catch (...) {}
+            try { right = (game_.get(p.right()) == nogo_chess::black); } catch (...) {}
+            if (top && bottom && left && right) {
+                weight[i] *= eye_fill_factor;
+            }
+            try { weight[i] *= game_.get(p.top()) == self ? adjacency_factor : 1; } catch (...) { weight[i] *= adjacency_factor; }
+            try { weight[i] *= game_.get(p.bottom()) == self ? adjacency_factor : 1; } catch (...) { weight[i] *= adjacency_factor; }
+            try { weight[i] *= game_.get(p.left()) == self ? adjacency_factor : 1; } catch (...) { weight[i] *= adjacency_factor; }
+            try { weight[i] *= game_.get(p.right()) == self ? adjacency_factor : 1; } catch (...) { weight[i] *= adjacency_factor; }
             try { weight[i] *= game_.get(p.top()) == opponent ? eye_destruction_factor : 1; } catch (...) { weight[i] *= eye_destruction_factor; }
             try { weight[i] *= game_.get(p.bottom()) == opponent ? eye_destruction_factor : 1; } catch (...) { weight[i] *= eye_destruction_factor; }
             try { weight[i] *= game_.get(p.left()) == opponent ? eye_destruction_factor : 1; } catch (...) { weight[i] *= eye_destruction_factor; }
@@ -53,8 +61,9 @@ public:
 public:
     float parity_factor = 2.5;
     float eye_construction_factor = 1.5;
-    float eye_fill_factor = 0.5;
+    float eye_fill_factor = 0.01;
     float eye_destruction_factor = 1.5;
+    float adjacency_factor = 0.5;
 };
 
 #endif
