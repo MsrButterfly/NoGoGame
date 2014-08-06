@@ -16,14 +16,22 @@ public:
         const auto self = chess;
         const auto opponent = (chess == nogo_chess::black) ? nogo_chess::white : nogo_chess::black;
         auto available_sequence = game_.available_sequence(chess);
-        std::vector<float> weight(available_sequence.size(), 1);
         static std::random_device device;
-        std::uniform_int_distribution<double> distribute(0.5, 1.5);
-        for (auto &w: weight) {
-            w *= distribute(device);
-        }
+        std::uniform_int_distribution<double> distribute(-random_factor, random_factor);
         std::mt19937 generator(device());
         std::shuffle(begin(available_sequence), end(available_sequence), generator);
+        std::vector<float> weight(available_sequence.size(), 1);
+        size_t liberty = 0;
+        for (size_t i = 0; i < available_sequence.size(); ++i) {
+            game_.set(available_sequence[i], chess);
+            weight[i] = game_.remaining(opponent);
+            game_.undo();
+            liberty += weight[i];
+        }
+        float average_liberty = float(liberty) / available_sequence.size();
+        for (size_t i = 0; i < available_sequence.size(); ++i) {
+            weight[i] = (average_liberty - weight[i] + 1) * liberty_factor;
+        }
         for (size_t i = 0; i < weight.size(); ++i) {
             auto &p = available_sequence[i];
             try { weight[i] *= game_.get(p.top().left()) == self ? eye_construction_factor : 1; } catch (...) { weight[i] *= eye_construction_factor; }
@@ -76,6 +84,8 @@ public:
     float eye_fill_factor = 0.01;
     float eye_destruction_factor = 2;
     float adjacency_factor = 0.3;
+    float liberty_factor = 1.5;
+    float random_factor = 0.5;
 };
 
 #endif
