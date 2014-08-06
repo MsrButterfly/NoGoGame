@@ -17,7 +17,6 @@ public:
         const auto opponent = (chess == nogo_chess::black) ? nogo_chess::white : nogo_chess::black;
         auto available_sequence = game_.available_sequence(chess);
         static std::random_device device;
-        std::uniform_int_distribution<double> distribute(-random_factor, random_factor);
         std::mt19937 generator(device());
         std::shuffle(begin(available_sequence), end(available_sequence), generator);
         std::vector<float> weight(available_sequence.size(), 1);

@@ -15,10 +15,10 @@ int main(int argc, const char *argv[]) {
     for (size_t i = 0; i < times; ++i) {
         game.reset();
         game.set_player<eye_strategy_player>(nogo_chess::black);
-        game.set_player<random_strategy_player>(nogo_chess::white);
-        game.start();
+        game.set_player<human_player>(nogo_chess::white);
+        game.start(true);
         ++wins[game.winner()];
-        std::cout << i << ". " << game.winner() << std::endl;
+        std::cout << i + 1 << ". " << game.winner() << std::endl;
     }
     for (auto &w: wins) {
         std::cout << w.first << ": " << w.second << " wins (" << static_cast<double>(w.second) / static_cast<double>(times) * 100 << "%)" << std::endl;
