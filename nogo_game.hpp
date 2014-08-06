@@ -72,7 +72,7 @@ public:
         return winner_;
     }
     template <class Player>
-    void set_player(const nogo_chess &chess) {
+    typename std::enable_if<std::is_base_of<nogo_player, Player>::value, void>::type set_player(const nogo_chess &chess) {
         player_[chess] = std::make_shared<Player>(*this);
     }
     template <class Player = nogo_player>

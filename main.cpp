@@ -15,8 +15,8 @@ int main(int argc, const char *argv[]) {
     for (size_t i = 0; i < times; ++i) {
         game.reset();
         game.set_player<eye_strategy_player>(nogo_chess::black);
-        game.set_player<human_player>(nogo_chess::white);
-        game.start(true);
+        game.set_player<random_strategy_player>(nogo_chess::white);
+        game.start();
         ++wins[game.winner()];
         std::cout << i + 1 << ". " << game.winner() << std::endl;
     }
